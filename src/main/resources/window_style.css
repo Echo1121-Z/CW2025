@@ -50,7 +50,7 @@
     -fx-fill: white;
     -fx-alignment: center-left;
     -fx-text-alignment: left;
-    -fx-font-size: 10px;
+    -fx-font-size: 15px;
 }
 
 .bonusStyle {
@@ -69,4 +69,37 @@
     -fx-font-size: 38;
     -fx-fill: yellow;
     -fx-text-fill: yellow;
+}
+
+.music-control {
+    -fx-padding: 5px;
+    -fx-border-color: #4a4a4a;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.volume-icon {
+    -fx-border-color: blue;
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-background-color: yellow;
+}
+
+.volume-icon:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-effect: drop shadow(gaussian, rgba(81, 207, 102, 0.5), 5, 0.5, 0, 0);
+}
+
+.volume-slider {
+    -fx-padding: 10px 0;
+    -fx-background-color: transparent;
+}
+
+.speakerClass {
+    -fx-border-color: green;
+        -fx-border-width: 1px;
+        -fx-border-radius: 3px;
+        -fx-padding: 3px;
+        -fx-background-color: transparent;
 }
