@@ -6,14 +6,69 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import java.net.URL?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.image.Image?>
 <Pane fx:controller="com.comp2042.GuiController"
       xmlns:fx="http://javafx.com/fxml">
-    <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>
+    <GridPane fx:id="brickPanel" vgap="1" hgap="1" style="-fx-border-color: red; -fx-border-width: 2px;"/>
     <BorderPane styleClass="gameBoard" fx:id="gameBoard">
         <center>
             <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutY="30" layoutX="40"/>
         </center>
     </BorderPane>
+    <VBox layoutX="260" layoutY="25" alignment="CENTER" styleClass="vbox">
+        <VBox alignment="CENTER">
+            <Label text="Score:" styleClass="scoreClass"/>
+            <Text text="Text" fx:id="scoreValue" styleClass="scoreClass"/>
+        </VBox>
+        <VBox alignment="CENTER">
+            <Label text="NextBrick" styleClass="nextBrickLabel"/>
+            <BorderPane styleClass="nextBrick" prefWidth="100" prefHeight="70" maxWidth="100">
+                <center>
+                    <GridPane fx:id="nextBrick" alignment="CENTER" hgap="1" vgap="1"/>
+                </center>
+            </BorderPane>
+        </VBox>
+        <Button text="New Game" onAction="#newGame" styleClass="ipad-dark-grey" prefWidth="140"/>
+        <ToggleButton text="Pause" styleClass="ipad-dark-grey" onAction="#pauseGame" prefWidth="140"
+                      fx:id="pauseButton"/>
+        <VBox alignment="CENTER" spacing="5" styleClass="music-control">
+            <ToggleButton text="Music Off" styleClass="ipad-dark-grey" onAction="#toggleMusic" prefWidth="140"
+                          fx:id="musicToggleButton"/>
+            <HBox fx:id="volumeControlBox" alignment="CENTER_LEFT" spacing="10" prefWidth="140" visible="false" managed="false">
+                <Label styleClass="speakerClass" fx:id="volumeIconLabel" prefWidth="45" prefHeight="20">
+                    <graphic>
+                        <ImageView fx:id="volumeImageView" fitWidth="30" fitHeight="20">
+                            <Image url="@/icons/volume.png"/>
+                        </ImageView>
+                    </graphic>
+                </Label>
+                <Slider fx:id="volumeSlider" value="50" prefWidth="90"
+                        showTickMarks="true" majorTickUnit="50"
+                        styleClass="volume-slider"/>
+            </HBox>
+        </VBox>
+        <VBox fx:id="helpBox">
+
+            <Text styleClass="helpInfo" wrappingWidth="180">
+                <![CDATA[
+                Use arrow keys (←, ↑, →, ↓) or (A,S,D,W) keys for movement and rotating.
+                ]]>
+            </Text>
+            <Text styleClass="helpInfo" wrappingWidth="180">
+                <![CDATA[
+                N - start new game.
+                ]]>
+            </Text>
+            <Text styleClass="helpInfo" wrappingWidth="180">
+                <![CDATA[
+                P - pause/resume.
+                ]]>
+            </Text>
+
+        </VBox>
+    </VBox>
 
     <Group fx:id="groupNotification" layoutX="14" layoutY="203">
         <VBox alignment="CENTER">
