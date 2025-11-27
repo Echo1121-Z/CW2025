@@ -5,6 +5,8 @@ import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -14,13 +16,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.Reflection;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+//import javafx.scene.media.Media;
+//import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -34,6 +38,7 @@ import java.util.ResourceBundle;
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
+    private static final String MUSIC_FILE = "/music/music.mp3";
     @FXML
     public Text scoreValue;
     @FXML
@@ -41,19 +46,20 @@ public class GuiController implements Initializable {
     @FXML
     public ToggleButton pauseButton;
     @FXML
+    public VBox helpBox;
+    @FXML
     public ToggleButton musicToggleButton;
-    @FXML
-    public HBox volumeControlBox;
-    @FXML
-    public Label volumeIconLabel;
-    @FXML
-    public ImageView volumeImageView;
     @FXML
     public Slider volumeSlider;
     @FXML
-    public VBox helpBox;
+    public Label volumeIconLabel;
     @FXML
-    public BorderPane gameBoard;
+    public HBox volumeControlBox;
+    @FXML
+    public ImageView volumeImageView;
+    //private MediaPlayer mediaPlayer;
+    private boolean isMusicPlaying = false;
+    private double lastVolume = 50; // last volume used in player resume
 
     @FXML
     private GridPane gamePanel;
@@ -89,15 +95,18 @@ public class GuiController implements Initializable {
             public void handle(KeyEvent keyEvent) {
                 if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
                     if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
-                        refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
+                        refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)),
+                                EventType.LEFT);
                         keyEvent.consume();
                     }
                     if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.D) {
-                        refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
+                        refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)),
+                                EventType.RIGHT);
                         keyEvent.consume();
                     }
                     if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.W) {
-                        refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
+                        refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)),
+                                EventType.ROTATE);
                         keyEvent.consume();
                     }
                     if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
@@ -108,15 +117,58 @@ public class GuiController implements Initializable {
                 if (keyEvent.getCode() == KeyCode.N) {
                     newGame(null);
                 }
+
+                if (keyEvent.getCode() == KeyCode.P && isGameOver.getValue() != Boolean.FALSE) {
+                    pauseButton.selectedProperty().setValue(!pauseButton.selectedProperty().getValue());
+                }
             }
         });
         gameOverPanel.setVisible(false);
 
+        pauseButton.selectedProperty().bindBidirectional(isPause);
+        pauseButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                System.out.printf("oldVal %s: newVal: %s\n", oldValue, newValue);
+                if (isGameOver.getValue() == Boolean.TRUE) {
+                    return;
+                }
+                if (newValue) {
+                    timeLine.pause();
+                    pauseButton.setText("Resume");
+                } else {
+                    timeLine.play();
+                    pauseButton.setText("Pause");
+                }
+            }
+        });
         final Reflection reflection = new Reflection();
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
         reflection.setTopOffset(-12);
+        scoreValue.setEffect(reflection);
+
+        // initialize media player
+        initializeMusicPlayer();
+        // initialize volume slider
+        setupVolumeSlider();
+        // hidden slider when game started
+        setVolumeControlVisible(false);
     }
+
+    private void initializeMusicPlayer() {
+        try {
+            String musicPath = getClass().getResource(MUSIC_FILE).toString();
+            //Media media = new Media(musicPath);
+            //mediaPlayer = new MediaPlayer(media);
+            //mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // player mode
+            //mediaPlayer.setVolume(0.5);
+        } catch (Exception e) {
+            System.err.printf("Can not load music file: %s, error: %s.", MUSIC_FILE, e.getMessage());
+            musicToggleButton.setDisable(true);
+        }
+    }
+
 
     public void initGameView(int[][] boardMatrix, ViewData brick) {
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
@@ -125,7 +177,7 @@ public class GuiController implements Initializable {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
                 rectangle.setFill(Color.TRANSPARENT);
                 displayMatrix[i][j] = rectangle;
-                gamePanel.add(rectangle, j, i );
+                gamePanel.add(rectangle, j, i);
             }
         }
 
@@ -139,11 +191,13 @@ public class GuiController implements Initializable {
             }
         }
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY( gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
 
+        generatePreviewPanel(brick.getNextBrickData());
+        System.out.printf("brick loc: x: %f, y: %f\n", brickPanel.getLayoutX(), brickPanel.getLayoutY());
 
         timeLine = new Timeline(new KeyFrame(
-                Duration.millis(400),
+                Duration.millis(600),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
@@ -185,20 +239,27 @@ public class GuiController implements Initializable {
     }
 
 
-    private void refreshBrick(ViewData brick) {
+    private void refreshBrick(ViewData brick, EventType eventType) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY( gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            brickPanel.setLayoutY(gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+
+            if (eventType == EventType.DOWN) {
+                // System.out.printf("brick loc in refresh: x: %f, y: %f\n", brickPanel.getLayoutX(), brickPanel.getLayoutY());
+            }
+
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
                 }
             }
+
+            generatePreviewPanel(brick.getNextBrickData());
         }
     }
 
     public void refreshGameBackground(int[][] board) {
-        for (int i = 2; i < board.length; i++) {
+        for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 setRectangleData(board[i][j], displayMatrix[i][j]);
             }
@@ -219,7 +280,7 @@ public class GuiController implements Initializable {
                 groupNotification.getChildren().add(notificationPanel);
                 notificationPanel.showScore(groupNotification.getChildren());
             }
-            refreshBrick(downData.getViewData());
+            refreshBrick(downData.getViewData(), event.getEventType());
         }
         gamePanel.requestFocus();
     }
@@ -229,12 +290,18 @@ public class GuiController implements Initializable {
     }
 
     public void bindScore(IntegerProperty integerProperty) {
+        scoreValue.textProperty().bind(integerProperty.asString());
     }
 
     public void gameOver() {
         timeLine.stop();
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
+        stopMusic();
+//        if (mediaPlayer != null) {
+//            mediaPlayer.stop();
+//            mediaPlayer.dispose();
+//        }
     }
 
     public void newGame(ActionEvent actionEvent) {
@@ -244,6 +311,10 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
         timeLine.play();
         isPause.setValue(Boolean.FALSE);
+
+        if (isGameOver.getValue() == Boolean.TRUE) {
+            initializeMusicPlayer();
+        }
         isGameOver.setValue(Boolean.FALSE);
     }
 
@@ -251,6 +322,110 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
+    @FXML
     public void toggleMusic(ActionEvent actionEvent) {
+        // if (mediaPlayer == null || isGameOver.getValue() == Boolean.TRUE) return;
+
+        if (isMusicPlaying) {
+            // mediaPlayer.pause();
+            musicToggleButton.setText("Music Off");
+            setVolumeControlVisible(false);
+        } else {
+            // mediaPlayer.play();
+            musicToggleButton.setText("Music On");
+            if (volumeSlider.getValue() == 0) {
+                volumeSlider.setValue(50);
+            }
+            setVolumeControlVisible(true);
+        }
+        isMusicPlaying = !isMusicPlaying;
+    }
+
+    private void stopMusic() {
+//        if (mediaPlayer != null && isMusicPlaying) {
+//            mediaPlayer.stop();
+        isMusicPlaying = false;
+        musicToggleButton.setSelected(false);
+        musicToggleButton.setText("Music Off");
+
+        setVolumeControlVisible(false);
+        //   }
+    }
+
+    private void setupVolumeSlider() {
+        // add listener for volume slider
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+//            if (mediaPlayer != null) {
+//                double volume = newValue.doubleValue() / 100.0;
+//                mediaPlayer.setVolume(volume);
+//                updateVolumeIcon(newValue.doubleValue());
+//                if (volume > 0.0) {
+//                    lastVolume = volume;
+//                }
+//                System.out.printf("volume listener, old: %f, new %f, last: %f\n",
+//                        oldValue.doubleValue(), newValue.doubleValue(), lastVolume);
+//            }
+        });
+
+        // add event listener for icon label
+        if (volumeIconLabel != null) {
+            volumeIconLabel.setOnMouseClicked(event -> {
+                toggleMute();
+            });
+        }
+    }
+
+    private void toggleMute() {
+        System.out.printf("slider volume: %f, last val: %f\n", getVolume(), lastVolume);
+        if (getVolume() > 0) {
+            lastVolume = volumeSlider.getValue();
+            setVolume(0.0);
+        } else {
+            volumeSlider.setValue(lastVolume > 0.0 ? lastVolume : 50.0);
+        }
+    }
+
+    private void setVolumeControlVisible(boolean visible) {
+        if (volumeControlBox != null) {
+            volumeControlBox.setVisible(visible);
+            volumeControlBox.setManaged(visible);
+        }
+    }
+
+    private void updateVolumeIcon(double volume) {
+        String icon = "/icons/volume.png";
+        if (volume == 0) {
+            icon = "/icons/no-sound.png";
+        }
+
+        // update icon
+        if (volumeImageView != null && volumeIconLabel != null) {
+            volumeImageView.setImage(new Image(icon));
+            volumeIconLabel.setVisible(true);
+            volumeIconLabel.setManaged(true);
+        }
+    }
+
+    public void setVolume(double volume) {
+        if (volume >= 0.0 && volume <= 100.0) {
+            volumeSlider.setValue(volume);
+        }
+    }
+
+    public double getVolume() {
+        return volumeSlider.getValue();
+    }
+
+    private void generatePreviewPanel(int[][] nextBrickData) {
+        nextBrick.getChildren().clear();
+        for (int i = 0; i < nextBrickData.length; i++) {
+            for (int j = 0; j < nextBrickData[i].length; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                setRectangleData(nextBrickData[i][j], rectangle);
+                if (nextBrickData[i][j] != 0) {
+                    nextBrick.add(rectangle, j, i);
+                }
+            }
+        }
     }
 }
