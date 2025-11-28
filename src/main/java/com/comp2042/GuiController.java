@@ -38,7 +38,7 @@ import java.util.ResourceBundle;
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
-    private static final String MUSIC_FILE = "/music/music.mp3";
+    private static final String MUSIC_FILE = "/music/musicnew.mp3";
     @FXML
     public Text scoreValue;
     @FXML
@@ -327,10 +327,12 @@ public class GuiController implements Initializable {
         if (mediaPlayer == null || isGameOver.getValue() == Boolean.TRUE) return;
 
         if (isMusicPlaying) {
+            System.out.printf("test\n");
             mediaPlayer.pause();
             musicToggleButton.setText("Music Off");
             setVolumeControlVisible(false);
         } else {
+            System.out.printf("foooobar\n");
             mediaPlayer.play();
             musicToggleButton.setText("Music On");
             if (volumeSlider.getValue() == 0) {
