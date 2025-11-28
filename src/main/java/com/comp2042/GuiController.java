@@ -23,8 +23,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-//import javafx.scene.media.Media;
-//import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -57,7 +57,7 @@ public class GuiController implements Initializable {
     public HBox volumeControlBox;
     @FXML
     public ImageView volumeImageView;
-    //private MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
     private boolean isMusicPlaying = false;
     private double lastVolume = 50; // last volume used in player resume
 
@@ -148,9 +148,9 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
         scoreValue.setEffect(reflection);
 
-        // initialize media player
+        //initialize media player
         initializeMusicPlayer();
-        // initialize volume slider
+        //initialize volume slider
         setupVolumeSlider();
         // hidden slider when game started
         setVolumeControlVisible(false);
@@ -159,10 +159,10 @@ public class GuiController implements Initializable {
     private void initializeMusicPlayer() {
         try {
             String musicPath = getClass().getResource(MUSIC_FILE).toString();
-            //Media media = new Media(musicPath);
-            //mediaPlayer = new MediaPlayer(media);
-            //mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // player mode
-            //mediaPlayer.setVolume(0.5);
+            Media media = new Media(musicPath);
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // player mode
+            mediaPlayer.setVolume(0.5);
         } catch (Exception e) {
             System.err.printf("Can not load music file: %s, error: %s.", MUSIC_FILE, e.getMessage());
             musicToggleButton.setDisable(true);
@@ -298,10 +298,10 @@ public class GuiController implements Initializable {
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
         stopMusic();
-//        if (mediaPlayer != null) {
-//            mediaPlayer.stop();
-//            mediaPlayer.dispose();
-//        }
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.dispose();
+        }
     }
 
     public void newGame(ActionEvent actionEvent) {
@@ -324,14 +324,14 @@ public class GuiController implements Initializable {
 
     @FXML
     public void toggleMusic(ActionEvent actionEvent) {
-        // if (mediaPlayer == null || isGameOver.getValue() == Boolean.TRUE) return;
+        if (mediaPlayer == null || isGameOver.getValue() == Boolean.TRUE) return;
 
         if (isMusicPlaying) {
-            // mediaPlayer.pause();
+            mediaPlayer.pause();
             musicToggleButton.setText("Music Off");
             setVolumeControlVisible(false);
         } else {
-            // mediaPlayer.play();
+            mediaPlayer.play();
             musicToggleButton.setText("Music On");
             if (volumeSlider.getValue() == 0) {
                 volumeSlider.setValue(50);
@@ -342,29 +342,29 @@ public class GuiController implements Initializable {
     }
 
     private void stopMusic() {
-//        if (mediaPlayer != null && isMusicPlaying) {
-//            mediaPlayer.stop();
-        isMusicPlaying = false;
-        musicToggleButton.setSelected(false);
-        musicToggleButton.setText("Music Off");
+        if (mediaPlayer != null && isMusicPlaying) {
+            mediaPlayer.stop();
+            isMusicPlaying = false;
+            musicToggleButton.setSelected(false);
+            musicToggleButton.setText("Music Off");
 
-        setVolumeControlVisible(false);
-        //   }
+            setVolumeControlVisible(false);
+        }
     }
 
     private void setupVolumeSlider() {
-        // add listener for volume slider
+        //add listener for volume slider
         volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-//            if (mediaPlayer != null) {
-//                double volume = newValue.doubleValue() / 100.0;
-//                mediaPlayer.setVolume(volume);
-//                updateVolumeIcon(newValue.doubleValue());
-//                if (volume > 0.0) {
-//                    lastVolume = volume;
-//                }
-//                System.out.printf("volume listener, old: %f, new %f, last: %f\n",
-//                        oldValue.doubleValue(), newValue.doubleValue(), lastVolume);
-//            }
+            if (mediaPlayer != null) {
+                double volume = newValue.doubleValue() / 100.0;
+                mediaPlayer.setVolume(volume);
+                updateVolumeIcon(newValue.doubleValue());
+                if (volume > 0.0) {
+                    lastVolume = volume;
+                }
+                System.out.printf("volume listener, old: %f, new %f, last: %f\n",
+                        oldValue.doubleValue(), newValue.doubleValue(), lastVolume);
+            }
         });
 
         // add event listener for icon label
