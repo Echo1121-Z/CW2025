@@ -1,10 +1,9 @@
 package com.comp2042;
 
+import com.comp2042.db.RecordManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -22,6 +21,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -39,6 +39,21 @@ public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
     private static final String MUSIC_FILE = "/music/musicnew.mp3";
+    private static final String RECORD_NAME = "h_score";
+
+    private final String[] backgroundClasses = {
+            "background-forest",
+            "background-desert",
+            "background-snow",
+            "background-space",
+            "background-5",
+            "background-6",
+            "background-7",
+            "background-8",
+            "background-9",
+    };
+    @FXML
+    private Pane rootPane;
     @FXML
     public Text scoreValue;
     @FXML
@@ -57,9 +72,16 @@ public class GuiController implements Initializable {
     public HBox volumeControlBox;
     @FXML
     public ImageView volumeImageView;
+    @FXML
+    public Text highestScoreValue;
     private MediaPlayer mediaPlayer;
     private boolean isMusicPlaying = false;
     private double lastVolume = 50; // last volume used in player resume
+
+    private final LongProperty highestScore = new SimpleLongProperty();
+    private long updateTimestamp;
+
+    private int currentBackgroundIndex = 0;
 
     @FXML
     private GridPane gamePanel;
@@ -148,9 +170,9 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
         scoreValue.setEffect(reflection);
 
-        //initialize media player
+        // initialize media player
         initializeMusicPlayer();
-        //initialize volume slider
+        // initialize volume slider
         setupVolumeSlider();
         // hidden slider when game started
         setVolumeControlVisible(false);
@@ -202,6 +224,9 @@ public class GuiController implements Initializable {
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
+
+        loadHighScore();
+        updateHighestScoreDisplay();
     }
 
     private Paint getFillColor(int i) {
@@ -230,6 +255,9 @@ public class GuiController implements Initializable {
                 break;
             case 7:
                 returnPaint = Color.BURLYWOOD;
+                break;
+            case 8:
+                returnPaint = Color.DEEPPINK;
                 break;
             default:
                 returnPaint = Color.WHITE;
@@ -304,6 +332,33 @@ public class GuiController implements Initializable {
         }
     }
 
+    public void switchBackground(ActionEvent actionEvent) {
+        // clear all the backgrounds
+        for (String bgClass : backgroundClasses) {
+            rootPane.getStyleClass().remove(bgClass);
+        }
+
+        currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundClasses.length;
+        setBackgroundByClass(backgroundClasses[currentBackgroundIndex]);
+    }
+
+    private void setBackgroundByClass(String cssClass) {
+        rootPane.getStyleClass().add(cssClass);
+    }
+
+    // 设置特定背景
+    public void setBackground(String imagePath) {
+        String imageUrl = getClass().getResource(imagePath).toExternalForm();
+
+        // 为主 Pane 设置背景
+        rootPane.setStyle("-fx-background-image: url('" + imageUrl + "'); " +
+                "-fx-background-size: cover; " +
+                "-fx-background-position: center; " +
+                "-fx-background-repeat: no-repeat;");
+
+        System.out.println("背景已切换到: " + imagePath);
+    }
+
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
@@ -327,12 +382,10 @@ public class GuiController implements Initializable {
         if (mediaPlayer == null || isGameOver.getValue() == Boolean.TRUE) return;
 
         if (isMusicPlaying) {
-            System.out.printf("test\n");
             mediaPlayer.pause();
             musicToggleButton.setText("Music Off");
             setVolumeControlVisible(false);
         } else {
-            System.out.printf("foooobar\n");
             mediaPlayer.play();
             musicToggleButton.setText("Music On");
             if (volumeSlider.getValue() == 0) {
@@ -355,7 +408,7 @@ public class GuiController implements Initializable {
     }
 
     private void setupVolumeSlider() {
-        //add listener for volume slider
+        // add listener for volume slider
         volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (mediaPlayer != null) {
                 double volume = newValue.doubleValue() / 100.0;
@@ -429,5 +482,35 @@ public class GuiController implements Initializable {
                 }
             }
         }
+    }
+
+    private void updateHighestScoreDisplay() {
+        highestScoreValue.setText(String.valueOf(highestScore.getValue()));
+    }
+
+    private void loadHighScore() {
+        long highScore = RecordManager.readLongFromFile(RECORD_NAME);
+
+        highestScore.setValue(highScore);
+        updateTimestamp = System.currentTimeMillis();
+        System.out.printf("highestScore: %s, timestamp: %s\n", highScore, updateTimestamp);
+    }
+
+    public void tryUpdateHighestScore(Score score) {
+        if (score.scoreProperty().getValue() <= highestScore.getValue()) {
+            return;
+        }
+
+        // update the highest score
+        highestScore.setValue(score.scoreProperty().getValue());
+        updateHighestScoreDisplay();
+
+        long curTime = System.currentTimeMillis();
+        //if (curTime - updateTimestamp > 10 * 1000) {
+            //System.out.printf("\nhighest score update time: %d ms, val: %d\n",
+                    //curTime - updateTimestamp, highestScore.getValue());
+            updateTimestamp = curTime;
+            RecordManager.saveLongToFile(RECORD_NAME, highestScore.getValue());
+        //}
     }
 }

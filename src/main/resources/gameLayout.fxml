@@ -6,10 +6,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import java.net.URL?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <Pane fx:controller="com.comp2042.GuiController"
+      fx:id="rootPane"
       xmlns:fx="http://javafx.com/fxml">
     <GridPane fx:id="brickPanel" vgap="1" hgap="1" style="-fx-border-color: red; -fx-border-width: 2px;"/>
     <BorderPane styleClass="gameBoard" fx:id="gameBoard">
@@ -17,7 +18,12 @@
             <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutY="30" layoutX="40"/>
         </center>
     </BorderPane>
-    <VBox layoutX="260" layoutY="25" alignment="CENTER" styleClass="vbox">
+
+    <VBox layoutX="380" layoutY="5" alignment="CENTER" styleClass="vbox">
+        <HBox alignment="CENTER">
+            <Label text="HighestScore:" styleClass="highestScoreClass"/>
+            <Text text="Text" fx:id="highestScoreValue" styleClass="highestScoreTextClass"/>
+        </HBox>
         <VBox alignment="CENTER">
             <Label text="Score:" styleClass="scoreClass"/>
             <Text text="Text" fx:id="scoreValue" styleClass="scoreClass"/>
@@ -30,6 +36,7 @@
                 </center>
             </BorderPane>
         </VBox>
+        <Button text="SWITCH BG" onAction="#switchBackground" styleClass="ipad-dark-grey" prefWidth="140"/>
         <Button text="New Game" onAction="#newGame" styleClass="ipad-dark-grey" prefWidth="140"/>
         <ToggleButton text="Pause" styleClass="ipad-dark-grey" onAction="#pauseGame" prefWidth="140"
                       fx:id="pauseButton"/>

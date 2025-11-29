@@ -2,6 +2,56 @@
     -fx-background-image: url("background_image.png");
 }
 
+/* 不同的背景样式类 */
+.background-forest {
+    -fx-background-image: url('background/bg1.png');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.background-desert {
+    -fx-background-image: url('background/bg3.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.background-snow {
+    -fx-background-image: url('background/bg2.png');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.background-space {
+    -fx-background-image: url('background/bg4.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.background-5 {
+    -fx-background-image: url('background/bg5.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.background-6 {
+    -fx-background-image: url('background/bg6.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.background-7 {
+    -fx-background-image: url('background/bg7.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
 .nextBrick {
     -fx-border-width: 2px;
     -fx-border-color: whitesmoke;
@@ -29,7 +79,7 @@
     linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
     -fx-background-insets: 0, 1, 4, 5, 6;
     -fx-background-radius: 9, 8, 5, 4, 3;
-    -fx-padding: 8;
+    -fx-padding: 4 8;
     /*-fx-font-family: "Helvetica";*/
     -fx-font-family: "Let's go Digital";
     -fx-font-size: 22px;
@@ -102,4 +152,18 @@
         -fx-border-radius: 3px;
         -fx-padding: 3px;
         -fx-background-color: transparent;
+}
+
+.highestScoreClass {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 15;
+    -fx-fill: red;
+    -fx-text-fill: red;
+}
+
+.highestScoreTextClass {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 38;
+    -fx-fill: green;
+    -fx-text-fill: green;
 }

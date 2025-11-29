@@ -22,7 +22,9 @@ public class Main extends Application {
 
         primaryStage.setTitle("TetrisJFX");
         //游戏面板更大
-        Scene scene = new Scene(root, 450, 548);
+        Scene scene = new Scene(root, 600, 548);
+        primaryStage.setFullScreen(false);
+        primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();
         new GameController(c);
