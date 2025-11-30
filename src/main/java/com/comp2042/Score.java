@@ -7,6 +7,11 @@ public final class Score {
 
     private final IntegerProperty score = new SimpleIntegerProperty(0);
 
+    private final IntegerProperty gamLevel = new SimpleIntegerProperty(0);
+    public IntegerProperty gameLevel() {
+        return gamLevel;
+    }
+
     public IntegerProperty scoreProperty() {
         return score;
     }

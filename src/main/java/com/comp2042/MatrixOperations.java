@@ -6,6 +6,8 @@ import java.util.Deque;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.comp2042.Config.GAME_LEVEL_SLOW;
+
 public class MatrixOperations {
 
 
@@ -60,7 +62,7 @@ public class MatrixOperations {
         return copy;
     }
 
-    public static ClearRow checkRemoving(final int[][] matrix) {
+    public static ClearRow checkRemoving(final int[][] matrix, int gameLevel) {
         int[][] tmp = new int[matrix.length][matrix[0].length];
         Deque<int[]> newRows = new ArrayDeque<>();
         List<Integer> clearedRows = new ArrayList<>();
@@ -88,7 +90,10 @@ public class MatrixOperations {
                 break;
             }
         }
-        int scoreBonus = 50 * clearedRows.size() * clearedRows.size();
+        if (gameLevel <= 0) {
+            gameLevel = GAME_LEVEL_SLOW;
+        }
+        int scoreBonus = 50 * gameLevel * clearedRows.size() * clearedRows.size();
         return new ClearRow(clearedRows.size(), tmp, scoreBonus);
     }
 

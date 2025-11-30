@@ -19,10 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
@@ -34,6 +31,8 @@ import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import static com.comp2042.Config.*;
 
 public class GuiController implements Initializable {
 
@@ -52,6 +51,12 @@ public class GuiController implements Initializable {
             "background-8",
             "background-9",
     };
+    @FXML
+    public Slider difficultySlider;
+    @FXML
+    public Text difficultyText;
+    @FXML
+    public BorderPane gameBoard;
     @FXML
     private Pane rootPane;
     @FXML
@@ -106,6 +111,7 @@ public class GuiController implements Initializable {
     private final BooleanProperty isPause = new SimpleBooleanProperty();
 
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
+    private final IntegerProperty gameLevel = new SimpleIntegerProperty();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -176,6 +182,30 @@ public class GuiController implements Initializable {
         setupVolumeSlider();
         // hidden slider when game started
         setVolumeControlVisible(false);
+        updateDifficultyText((int) difficultySlider.getValue());
+        difficultySlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            updateDifficultyText(newVal.intValue());
+        });
+    }
+    private void updateDifficultyText(int level) {
+        String text = "S";
+        switch (level) {
+            case GAME_LEVEL_MEDIUM:
+                text = "M";
+                gameLevel.setValue(GAME_LEVEL_MEDIUM);
+                break;
+            case GAME_LEVEL_FAST:
+                text = "F";
+                gameLevel.setValue(GAME_LEVEL_FAST);
+                break;
+            default:
+                text = "S";
+                gameLevel.setValue(GAME_LEVEL_SLOW);
+                break;
+        };
+
+        //System.out.printf("updateDifficulty gameLevel: %d\n", gameLevel.getValue());
+        difficultyText.setText(text);
     }
 
     private void initializeMusicPlayer() {
@@ -218,15 +248,34 @@ public class GuiController implements Initializable {
         generatePreviewPanel(brick.getNextBrickData());
         System.out.printf("brick loc: x: %f, y: %f\n", brickPanel.getLayoutX(), brickPanel.getLayoutY());
 
+//        timeLine = new Timeline(new KeyFrame(
+//                Duration.millis(600),
+//                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
+//        ));
+//        timeLine.setCycleCount(Timeline.INDEFINITE);
+//        timeLine.play();
+        initTimeline();
+
+        loadHighScore();
+        updateHighestScoreDisplay();
+    }
+    public void initTimeline() {
         timeLine = new Timeline(new KeyFrame(
-                Duration.millis(600),
+                Duration.millis(400),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
 
-        loadHighScore();
-        updateHighestScoreDisplay();
+        gameLevel.addListener((obs, oldLevel, newLevel) -> {
+            double rate = switch (newLevel.intValue()) {
+                case 1 -> 0.5;  // slow
+                case 2 -> 1.0;  // medium
+                case 3 -> 2.0;  // fast
+                default -> 1.0;
+            };
+            timeLine.setRate(rate);
+        });
     }
 
     private Paint getFillColor(int i) {
@@ -512,5 +561,9 @@ public class GuiController implements Initializable {
             updateTimestamp = curTime;
             RecordManager.saveLongToFile(RECORD_NAME, highestScore.getValue());
         //}
+
+    }
+    public IntegerProperty getGameLevel() {
+        return gameLevel;
     }
 }

@@ -24,18 +24,49 @@
             <Label text="HighestScore:" styleClass="highestScoreClass"/>
             <Text text="Text" fx:id="highestScoreValue" styleClass="highestScoreTextClass"/>
         </HBox>
-        <VBox alignment="CENTER">
-            <Label text="Score:" styleClass="scoreClass"/>
-            <Text text="Text" fx:id="scoreValue" styleClass="scoreClass"/>
-        </VBox>
-        <VBox alignment="CENTER">
-            <Label text="NextBrick" styleClass="nextBrickLabel"/>
-            <BorderPane styleClass="nextBrick" prefWidth="100" prefHeight="70" maxWidth="100">
-                <center>
-                    <GridPane fx:id="nextBrick" alignment="CENTER" hgap="1" vgap="1"/>
-                </center>
-            </BorderPane>
-        </VBox>
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <VBox alignment="CENTER" spacing="15">
+                <VBox alignment="CENTER">
+                    <Label text="Score:" styleClass="scoreClass"/>
+                    <Text text="Text" fx:id="scoreValue" styleClass="scoreClass"/>
+                </VBox>
+                <VBox alignment="CENTER">
+                    <Label text="NextBrick" styleClass="nextBrickLabel"/>
+                    <BorderPane styleClass="nextBrick" prefWidth="100" prefHeight="70" maxWidth="100">
+                        <center>
+                            <GridPane fx:id="nextBrick" alignment="CENTER" hgap="1" vgap="1"/>
+                        </center>
+                    </BorderPane>
+                </VBox>
+            </VBox>
+            <VBox alignment="CENTER" spacing="5" prefWidth="100">
+                <HBox alignment="CENTER">
+                    <Label text="Level:" styleClass="difficulty-label"/>
+                    <Text text="S" fx:id="difficultyText" styleClass="difficulty-text"/>
+                </HBox>
+                <Slider fx:id="difficultySlider" styleClass="difficulty-slider"
+                        orientation="VERTICAL"
+                        min="1" max="3" value="1"
+                        showTickMarks="true"
+                        showTickLabels="true"
+                        majorTickUnit="1"
+                        minorTickCount="0"
+                        snapToTicks="true"
+                        prefHeight="160"/>
+            </VBox>
+        </HBox>
+<!--        <VBox alignment="CENTER">-->
+<!--            <Label text="Score:" styleClass="scoreClass"/>-->
+<!--            <Text text="Text" fx:id="scoreValue" styleClass="scoreClass"/>-->
+<!--        </VBox>-->
+<!--        <VBox alignment="CENTER">-->
+<!--            <Label text="NextBrick" styleClass="nextBrickLabel"/>-->
+<!--            <BorderPane styleClass="nextBrick" prefWidth="100" prefHeight="70" maxWidth="100">-->
+<!--                <center>-->
+<!--                    <GridPane fx:id="nextBrick" alignment="CENTER" hgap="1" vgap="1"/>-->
+<!--                </center>-->
+<!--            </BorderPane>-->
+<!--        </VBox>-->
         <Button text="SWITCH BG" onAction="#switchBackground" styleClass="ipad-dark-grey" prefWidth="140"/>
         <Button text="New Game" onAction="#newGame" styleClass="ipad-dark-grey" prefWidth="140"/>
         <ToggleButton text="Pause" styleClass="ipad-dark-grey" onAction="#pauseGame" prefWidth="140"

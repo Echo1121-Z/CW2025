@@ -106,7 +106,7 @@ public class SimpleBoard implements Board {
 
     @Override
     public ClearRow clearRows() {
-        ClearRow clearRow = MatrixOperations.checkRemoving(currentGameMatrix);
+        ClearRow clearRow = MatrixOperations.checkRemoving(currentGameMatrix, score.gameLevel().getValue());
         currentGameMatrix = clearRow.getNewMatrix();
         return clearRow;
 

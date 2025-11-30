@@ -167,3 +167,30 @@
     -fx-fill: green;
     -fx-text-fill: green;
 }
+.difficulty-label {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: red;
+    -fx-fill: yellow;
+}
+
+.difficulty-slider .track {
+    -fx-background-color: linear-gradient(to bottom, red, #f39c12, green);
+}
+
+.difficulty-slider .tick-label {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 20px;
+    -fx-fill: blue;
+    -fx-fill-text: red;
+    -fx-font-weight: bold;
+}
+
+.difficulty-text {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 25px;
+    -fx-fill: yellow;
+    -fx-text-fill: red;
+    -fx-font-weight: bold;
+}
